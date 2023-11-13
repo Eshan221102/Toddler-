@@ -1,82 +1,105 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class AnimalGameManager : MonoBehaviour
+public class AnimalSoundGameController : MonoBehaviour
 {
-    public AudioSource[] AnimalSounds;
+    public GameObject[] animals; // Array to hold your animal game objects
+    public AudioClip[] animalSounds; // Array to hold your animal sounds
+    public TextMeshProUGUI scoreText;
 
-    private bool[] hasSoundPlayed;
-
-    public AnimalTurn[] Animals;
-
-    private int activeAnimalIndex = -1; // Stores the index of the currently active animal
+    private int[] randomizedIndices; // Array to hold the randomized order of animal sounds
+    private int currentAnimalIndex;
+    private AudioSource audioSource;
+    private int score;
+    bool attemptMade = false;
 
     void Start()
     {
-        // Initialize the array to keep track of played sounds
-        hasSoundPlayed = new bool[AnimalSounds.Length];
+        audioSource = GetComponent<AudioSource>();
+        score = 0;
+        currentAnimalIndex = -1; // Initialize to -1 so that the first animal sound will start on the first click
+        RandomizeAnimalSounds();
+        PlayNextAnimalSound();
     }
 
-    // Update is called once per frame
+    void RandomizeAnimalSounds()
+    {
+        // Create an array of indices and shuffle it
+        randomizedIndices = new int[animalSounds.Length];
+        for (int i = 0; i < randomizedIndices.Length; i++)
+        {
+            randomizedIndices[i] = i;
+        }
+        for (int i = randomizedIndices.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            int temp = randomizedIndices[i];
+            randomizedIndices[i] = randomizedIndices[j];
+            randomizedIndices[j] = temp;
+        }
+    }
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetMouseButtonDown(0) && !attemptMade)
         {
-            PlayRandomUnplayedSound();
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                GameObject hitObject = hit.transform.gameObject;
+
+                // Check if the clicked object is an animal
+                if (ArrayContains(animals, hitObject))
+                {
+                    attemptMade = true;
+                    Debug.Log("hit animal");
+                    // Check if the clicked animal is the correct one
+                    if (hitObject == animals[randomizedIndices[currentAnimalIndex]])
+                    {
+                        score++;
+                        scoreText.text = "Score: " + score;
+                    }
+                    else
+                    {
+                        // Restart the scene if the wrong animal is clicked
+                        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+                    }
+
+                    PlayNextAnimalSound();
+                }
+            }
         }
     }
 
-    void PlayRandomUnplayedSound()
+    void PlayNextAnimalSound()
     {
-        List<int> unplayedIndices = new List<int>();
-
-        // Find indices of unplayed sounds
-        for (int i = 0; i < AnimalSounds.Length; i++)
+        // Check if there are more animals to play sounds
+        if (currentAnimalIndex < animals.Length - 1)
         {
-            if (!hasSoundPlayed[i])
-            {
-                unplayedIndices.Add(i);
-            }
-        }
-
-        // If there are unplayed sounds, select a random one and play it
-        if (unplayedIndices.Count > 0)
-        {
-            int randomIndex = unplayedIndices[Random.Range(0, unplayedIndices.Count)];
-            AnimalSounds[randomIndex].Play();
-
-            // Deactivate the previous active animal
-            if (activeAnimalIndex >= 0)
-            {
-                Animals[activeAnimalIndex].MyTurn = false;
-            }
-
-            // Activate the new active animal
-            Animals[randomIndex].MyTurn = true;
-
-            activeAnimalIndex = randomIndex; // Update the active animal index
-            hasSoundPlayed[randomIndex] = true;
-
-            Debug.Log("Playing sound for: " + Animals[randomIndex].MyTurn);
+            currentAnimalIndex++;
+            audioSource.PlayOneShot(animalSounds[randomizedIndices[currentAnimalIndex]]);
+            attemptMade = false;
         }
         else
         {
-            Debug.Log("All sounds have been played.");
+            // Game over
+            Debug.Log("Game Over");
+            // You can add additional logic here for game over, such as displaying a game over screen or resetting the game.
         }
-    }
-    void OnMouseDown()
-    {
-        if (AnimalTurn.instance.MyTurn)
-        {
-            Debug.Log("true");
-        }
-        else
-        {
-            Debug.Log("false");
-        }
-        Debug.Log("lalal");
     }
 
+    bool ArrayContains(GameObject[] array, GameObject obj)
+    {
+        foreach (GameObject element in array)
+        {
+            if (element == obj)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
-

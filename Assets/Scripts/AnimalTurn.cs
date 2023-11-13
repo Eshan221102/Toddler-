@@ -16,24 +16,24 @@ public class AnimalTurn : MonoBehaviour
     {
 
     }
-    void OnMouseDown()
-    {
-        if (gameObject.CompareTag("Panda"))
-        {
-            if (MyTurn)
-            {
-                Debug.Log("true");
-            }
-            else
-            {
-                Debug.Log("false");
-            }
-        }
-        else
-        {
-            Debug.Log("false1");
-        }
+    // void OnMouseDown()
+    // {
+    //     if (gameObject.CompareTag("Panda"))
+    //     {
+    //         if (MyTurn)
+    //         {
+    //             Debug.Log("true");
+    //         }
+    //         else
+    //         {
+    //             Debug.Log("false");
+    //         }
+    //     }
+    //     else
+    //     {
+    //         Debug.Log("false1");
+    //     }
 
-    }
+    // }
 
 }
