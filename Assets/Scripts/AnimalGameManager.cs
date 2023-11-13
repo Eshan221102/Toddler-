@@ -21,6 +21,7 @@ public class AnimalSoundGameController : MonoBehaviour
         currentAnimalIndex = -1; // Initialize to -1 so that the first animal sound will start on the first click
         RandomizeAnimalSounds();
         PlayNextAnimalSound();
+        scoreText.text = "Starting The Game! Good Luck";
     }
 
     void RandomizeAnimalSounds()
@@ -60,7 +61,7 @@ public class AnimalSoundGameController : MonoBehaviour
                     if (hitObject == animals[randomizedIndices[currentAnimalIndex]])
                     {
                         score++;
-                        scoreText.text = "Score: " + score;
+                        scoreText.text = "Good Job!";
                     }
                     else
                     {
