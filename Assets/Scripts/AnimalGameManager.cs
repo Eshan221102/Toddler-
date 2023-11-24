@@ -1,6 +1,7 @@
 using TMPro;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class AnimalSoundGameController : MonoBehaviour
 {
@@ -20,8 +21,8 @@ public class AnimalSoundGameController : MonoBehaviour
         score = 0;
         currentAnimalIndex = -1; // Initialize to -1 so that the first animal sound will start on the first click
         RandomizeAnimalSounds();
-        PlayNextAnimalSound();
         scoreText.text = "Starting The Game! Good Luck";
+        StartCoroutine(PlayNextAnimalSound(1));
     }
 
     void RandomizeAnimalSounds()
@@ -62,22 +63,22 @@ public class AnimalSoundGameController : MonoBehaviour
                     {
                         score++;
                         scoreText.text = "Good Job!";
+                        StartCoroutine(PlayNextAnimalSound(2));
                     }
                     else
                     {
-                        // Restart the scene if the wrong animal is clicked
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+                        scoreText.text = "Wrong Answer.. Try Again!";
+                        StartCoroutine(LoadGameAfterDelayAnimal(2));
                     }
-
-                    PlayNextAnimalSound();
                 }
             }
         }
     }
 
-    void PlayNextAnimalSound()
+    IEnumerator PlayNextAnimalSound(int delay)
     {
-        // Check if there are more animals to play sounds
+        yield return new WaitForSeconds(delay);
+        scoreText.text = "Playing Animal Sound Now!";
         if (currentAnimalIndex < animals.Length - 1)
         {
             currentAnimalIndex++;
@@ -86,9 +87,8 @@ public class AnimalSoundGameController : MonoBehaviour
         }
         else
         {
-            // Game over
-            Debug.Log("Game Over");
-            // You can add additional logic here for game over, such as displaying a game over screen or resetting the game.
+            scoreText.text = "Well done Returning to Main Menu!";
+            StartCoroutine(LoadMainMenu(2));
         }
     }
 
@@ -102,5 +102,16 @@ public class AnimalSoundGameController : MonoBehaviour
             }
         }
         return false;
+    }
+    IEnumerator LoadGameAfterDelayAnimal(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+    }
+
+    IEnumerator LoadMainMenu(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 }
