@@ -8,8 +8,10 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     public static int ChronologicalAge = 0;
+    public static int MentalAge = 0;
     public GameObject InputAgePanel;
     public TMP_InputField ageInputField;
+    public TextMeshProUGUI IQText;
 
     void Start()
     {
@@ -18,7 +20,6 @@ public class MainMenuManager : MonoBehaviour
         {
             // If it's the first launch, activate the InputAgePanel
             InputAgePanel.SetActive(true);
-            PlayerPrefs.SetInt("FirstLaunch", 1); // Set a flag to indicate the first launch
         }
         else
         {
@@ -36,16 +37,20 @@ public class MainMenuManager : MonoBehaviour
         // Store the age in PlayerPrefs
         PlayerPrefs.SetInt("ChronologicalAge", age);
         ChronologicalAge = age;
-
+        MentalAge = ChronologicalAge / 2;
+        PlayerPrefs.SetInt("MentalAge", MentalAge);
         // Deactivate the InputAgePanel
         InputAgePanel.SetActive(false);
-        Debug.Log("Set");
+        Debug.Log("Chronological Age : " + ChronologicalAge + "Mental age : " + MentalAge);
+
+        PlayerPrefs.SetInt("FirstLaunch", 1);
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        MentalAge = PlayerPrefs.GetInt("MentalAge", 0);
+        IQText.text = "IQ : " + MentalAge.ToString();
     }
     public void StartAnimalGame()
     {
