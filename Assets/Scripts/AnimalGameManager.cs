@@ -68,6 +68,8 @@ public class AnimalSoundGameController : MonoBehaviour
                     else
                     {
                         scoreText.text = "Wrong Answer.. Try Again!";
+                        MainMenuManager.MentalAge--;
+                        PlayerPrefs.SetInt("MentalAge", MainMenuManager.MentalAge);
                         StartCoroutine(LoadGameAfterDelayAnimal(2));
                     }
                 }
@@ -88,6 +90,8 @@ public class AnimalSoundGameController : MonoBehaviour
         else
         {
             scoreText.text = "Well done Returning to Main Menu!";
+            MainMenuManager.MentalAge++;
+            PlayerPrefs.SetInt("MentalAge", MainMenuManager.MentalAge);
             StartCoroutine(LoadMainMenu(2));
         }
     }

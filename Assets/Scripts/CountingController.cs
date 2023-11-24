@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class CountingController : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class CountingController : MonoBehaviour
     public void CheckAnswer()
     {
         if (roundInProgress) return;
-
+        if (currentRound > 5) return;
         int userAnswer;
         if (int.TryParse(inputField.text, out userAnswer))
         {
@@ -42,49 +43,50 @@ public class CountingController : MonoBehaviour
     }
 
     void NextRound()
-{
-    if (currentRound > 5)
     {
-        feedbackText.text = "Game Over!";
-        return;
-    }
-
-    feedbackText.text = "Round " + currentRound;
-
-    // Check if currentRound is within the bounds of the array
-    if (currentRound > 0 && currentRound <= usedNumbers.Length)
-    {
-        int randomNumber;
-        do
+        if (currentRound > 5)
         {
-            randomNumber = Random.Range(1, maxObjects + 1);
-        } while (IsNumberUsed(randomNumber));
+            feedbackText.text = "Game Over!";
+            StartCoroutine(EndGameAfterDelay(2));
+            return;
+        }
 
-        objectsInCurrentRound = randomNumber;
+        feedbackText.text = "Round " + currentRound;
 
-        // Make sure currentRound - 1 is a valid index
-        if (currentRound - 1 >= 0 && currentRound - 1 < usedNumbers.Length)
+        // Check if currentRound is within the bounds of the array
+        if (currentRound > 0 && currentRound <= usedNumbers.Length)
         {
-            usedNumbers[currentRound - 1] = objectsInCurrentRound;
+            int randomNumber;
+            do
+            {
+                randomNumber = Random.Range(1, maxObjects + 1);
+            } while (IsNumberUsed(randomNumber));
+
+            objectsInCurrentRound = randomNumber;
+
+            // Make sure currentRound - 1 is a valid index
+            if (currentRound - 1 >= 0 && currentRound - 1 < usedNumbers.Length)
+            {
+                usedNumbers[currentRound - 1] = objectsInCurrentRound;
+            }
+            else
+            {
+                // Handle the out-of-bounds case (optional)
+                Debug.LogError("Invalid index for usedNumbers array");
+            }
+
+            ActivateRandomObjects(objectsInCurrentRound);
+            inputField.text = "";
+
+            // // Increment currentRound for the next round
+            // currentRound++;
         }
         else
         {
             // Handle the out-of-bounds case (optional)
-            Debug.LogError("Invalid index for usedNumbers array");
+            Debug.LogError("Invalid value for currentRound");
         }
-
-        ActivateRandomObjects(objectsInCurrentRound);
-        inputField.text = "";
-
-        // // Increment currentRound for the next round
-        // currentRound++;
     }
-    else
-    {
-        // Handle the out-of-bounds case (optional)
-        Debug.LogError("Invalid value for currentRound");
-    }
-}
 
 
     bool IsNumberUsed(int number)
@@ -118,6 +120,8 @@ public class CountingController : MonoBehaviour
 
     IEnumerator RestartGameAfterDelay(float delay)
     {
+        MainMenuManager.MentalAge--;
+        PlayerPrefs.SetInt("MentalAge", MainMenuManager.MentalAge);
         roundInProgress = true;
         yield return new WaitForSeconds(delay);
         currentRound = 1;
@@ -125,4 +129,13 @@ public class CountingController : MonoBehaviour
         NextRound();
         roundInProgress = false;
     }
+    IEnumerator EndGameAfterDelay(float delay)
+    {
+        MainMenuManager.MentalAge++;
+        PlayerPrefs.SetInt("MentalAge", MainMenuManager.MentalAge);
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene(0);
+    }
+
+
 }
