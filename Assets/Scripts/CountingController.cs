@@ -16,6 +16,9 @@ public class CountingController : MonoBehaviour
     private int maxObjects = 10;
     private bool roundInProgress = false;
 
+    public AudioSource RightAnswerSound;
+    public AudioSource WrongAnswerSound;
+
     void Start()
     {
         usedNumbers = new int[5]; // Initialize an array to store used numbers for each round
@@ -112,6 +115,7 @@ public class CountingController : MonoBehaviour
     IEnumerator NextRoundAfterDelay(float delay)
     {
         roundInProgress = true;
+        RightAnswerSound.Play();
         yield return new WaitForSeconds(delay);
         currentRound++;
         NextRound();
@@ -123,6 +127,7 @@ public class CountingController : MonoBehaviour
         MainMenuManager.MentalAge--;
         PlayerPrefs.SetInt("MentalAge", MainMenuManager.MentalAge);
         roundInProgress = true;
+        WrongAnswerSound.Play();
         yield return new WaitForSeconds(delay);
         currentRound = 1;
         usedNumbers = new int[4];
@@ -134,6 +139,11 @@ public class CountingController : MonoBehaviour
         MainMenuManager.MentalAge++;
         PlayerPrefs.SetInt("MentalAge", MainMenuManager.MentalAge);
         yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene(0);
+    }
+
+    public void MainMenu()
+    {
         SceneManager.LoadScene(0);
     }
 
